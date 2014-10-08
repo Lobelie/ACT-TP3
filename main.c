@@ -9,12 +9,14 @@ int main(int argc, char** argv) {
 
 	struct image_t* image;
 	struct palette_coeff_t* palette;
+	unsigned int k;
 
 	if(argc < 2) {
 		print_command_line();
 	}
 	else {
 		image = read_image(argv[1]);
+		k = atoi(argv[2]);
 	}
 
 	fflush(stdout);
@@ -26,6 +28,8 @@ int main(int argc, char** argv) {
 
 	printf("distance min : %d\n", distanceMin(palette, 0, palette->model->size));
 
+
+	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
 
 	free(image->pixels);

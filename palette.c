@@ -1,5 +1,7 @@
 #include "palette.h"
 
+#define UNINITIAZLIZED_UINT 0xFFFFFFFF
+
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
 	int i;
 	double average = 0;
@@ -23,6 +25,41 @@ unsigned int distanceMin(struct palette_coeff_t* palette, unsigned int index_min
 		distance += (palette->model->data[i]-best_gray)*(palette->model->data[i]-best_gray)*palette->coeff[i];
 
 	return distance;
+}
+
+unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int current_index, unsigned int k) {
+	static unsigned int* save_array = NULL;
+
+	if(save_array == NULL) {
+		unsigned int i;
+		save_array = malloc(palette->model->size*k*sizeof(unsigned int));
+		for(i=0; i<palette->model->size*k; i++)
+			save_array[i] = UNINITIAZLIZED_UINT;
+	}
+
+	if(save_array[current_index*palette->model->size+k] != UNINITIAZLIZED_UINT)
+		return save_array[current_index*palette->model->size+k];
+
+	if(k == 0) {
+		save_array[current_index*palette->model->size+k] = distanceMin(palette, current_index, palette->model->size);
+		return save_array[current_index*palette->model->size+k];
+	}
+	else {
+		unsigned int min = INT_MAX;
+		unsigned int i;
+
+		for(i = current_index; i < palette->model->size-k; i++) {
+			unsigned int current = distanceMin(palette, current_index, i)+reduce_palette(palette, i, k-1);
+
+			if(current < min) {
+				min = current;
+			}
+		}
+
+		save_array[current_index*palette->model->size+k] = min;
+
+		return min;
+	}
 }
 
 struct palette_coeff_t* create_palette(struct image_t* image) {

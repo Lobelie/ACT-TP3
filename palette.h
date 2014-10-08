@@ -5,6 +5,7 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
 #include "header.h"
 #include "image.h"
@@ -28,5 +29,7 @@ struct palette_coeff_t* create_palette(struct image_t* image);
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max);
 
 unsigned int distanceMin(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max);
+
+unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int current_index, unsigned int k);
 
 #endif
