@@ -4,27 +4,32 @@
 
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
 	int i;
-	double average = 0;
+    double average = 0;
 	unsigned int total_coeff = 0;
 
 	for(i=index_min; i<index_max; i++) {
-		average += palette->coeff[i]*palette->model->data[i];
-		total_coeff +=palette->coeff[i];
+        average += palette->coeff[i] * palette->model->data[i];
+        total_coeff += palette->coeff[i];
 	}
 
-	return round(average/(double)total_coeff);
+    return round(average/(double)total_coeff);
 
 }
 
-unsigned int distanceMin(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
-	unsigned int distance = 0;
-	unsigned int i;
-	COLOR_TYPE best_gray = meilleurGris(palette, index_min, index_max);
+float distanceMin(palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
+    float distance = FLT_MAX;
+    float distanceTmp = 0;
 
-	for(i = index_min; i < index_max; i++)
-		distance += (palette->model->data[i]-best_gray)*(palette->model->data[i]-best_gray)*palette->coeff[i];
+	int i;
+    for(i=index_min+1; i<index_max; i++) {
+        COLOR_TYPE color = meilleurGris(palette, index_min, i);
+        distanceTmp += pow(palette->model->data[i] - color, 2.0) * palette->coeff[i];
 
-	return distance;
+        if ( distanceTmp < distance ) {
+            distance = distanceTmp;
+        }
+    }
+    return distance;
 }
 
 unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int current_index, unsigned int k) {
@@ -108,6 +113,5 @@ struct palette_coeff_t* create_palette(struct image_t* image) {
 	}
 
 	return palette_coeff_return;
-
 
 }

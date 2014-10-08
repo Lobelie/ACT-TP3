@@ -13,6 +13,7 @@ int main(int argc, char** argv) {
 
 	if(argc < 2) {
 		print_command_line();
+        return EXIT_FAILURE;
 	}
 	else {
 		image = read_image(argv[1]);
@@ -27,7 +28,6 @@ int main(int argc, char** argv) {
 	printf("meilleur gris : %d\n", meilleurGris(palette, 0, palette->model->size));
 
 	printf("distance min : %d\n", distanceMin(palette, 0, palette->model->size));
-
 
 	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
