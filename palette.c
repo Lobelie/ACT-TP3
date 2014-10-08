@@ -38,16 +38,18 @@ struct palette_coeff_t* create_palette(struct image_t* image) {
 	unsigned int palette_cursor = 0;
 	unsigned int i;
 
-	COLOR_TYPE* max_tab_color = malloc(max_color*sizeof(COLOR_TYPE));
+	unsigned int* max_tab_color = malloc(max_color*sizeof(unsigned int));
 
-	memset(max_tab_color, 0, max_color*sizeof(COLOR_TYPE));
+	memset(max_tab_color, 0, max_color*sizeof(unsigned int));
 
 	for(i=0; i<image->width*image->height; i++) {
 
 		assert((unsigned int)image->pixels[i] < max_color);
 
-		if(max_tab_color[(unsigned int)image->pixels[i]] == 0)
+		if(max_tab_color[(unsigned int)image->pixels[i]] == 0) {
 			color_count++;
+
+		}
 
 		max_tab_color[(unsigned int)image->pixels[i]]++;
 	}

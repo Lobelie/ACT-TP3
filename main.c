@@ -1,6 +1,5 @@
 #include "image_reader.h"
 #include "palette.h"
-
 void print_command_line() {
 	printf("./pgm <image-pathname> <gray-level>\n");
 }
@@ -22,8 +21,12 @@ int main(int argc, char** argv) {
 	fflush(stdout);
 	palette = create_palette(image);
 
-    printf("meilleurGris = %d\n", meilleurGris(palette, 0, palette->model->size));
-    printf("distanceMin = %f\n", distanceMin(palette, 0, 256));
+	printf("palette : %d\n", palette->model->size);
+
+	printf("meilleur gris : %d\n", meilleurGris(palette, 0, palette->model->size));
+
+	printf("distance min : %d\n", distanceMin(palette, 0, palette->model->size));
+
 
 	free(image->pixels);
 	free(image);
