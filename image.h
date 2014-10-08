@@ -10,7 +10,7 @@ struct image_t {
 	size_t width;
 	size_t height;
 };
-
+typedef struct image_t image_t;
 
 
 #endif

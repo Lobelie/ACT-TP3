@@ -13,14 +13,17 @@ int main(int argc, char** argv) {
 
 	if(argc < 2) {
 		print_command_line();
+        return EXIT_FAILURE;
 	}
 	else {
 		image = read_image(argv[1]);
 	}
 
+	fflush(stdout);
 	palette = create_palette(image);
 
-
+    printf("meilleurGris = %d\n", meilleurGris(palette, 0, palette->model->size));
+    printf("distanceMin = %f\n", distanceMin(palette, 0, 256));
 
 	free(image->pixels);
 	free(image);
