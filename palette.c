@@ -14,3 +14,7 @@ COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int valeur_min
     return floor(average/(double)total_coeff);
 }
 
+float distanceMin(palette_coeff_t* palette, unsigned int valeur_min, unsigned int valeur_max) {
+    float distance;
+
+}
