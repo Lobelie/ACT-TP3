@@ -27,4 +27,6 @@ struct palette_coeff_t* create_palette(struct image_t* image);
 
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max);
 
+unsigned int distanceMin(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max);
+
 #endif

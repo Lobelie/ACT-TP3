@@ -2,16 +2,27 @@
 
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
 	int i;
-	double average;
+	double average = 0;
 	unsigned int total_coeff = 0;
 
 	for(i=index_min; i<index_max; i++) {
 		average += palette->coeff[i]*palette->model->data[i];
-		total_coeff += average+palette->coeff[i];
+		total_coeff +=palette->coeff[i];
 	}
 
-	return average/(double)total_coeff;
+	return round(average/(double)total_coeff);
 
+}
+
+unsigned int distanceMin(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
+	unsigned int distance = 0;
+	unsigned int i;
+	COLOR_TYPE best_gray = meilleurGris(palette, index_min, index_max);
+
+	for(i = index_min; i < index_max; i++)
+		distance += (palette->model->data[i]-best_gray)*(palette->model->data[i]-best_gray)*palette->coeff[i];
+
+	return distance;
 }
 
 struct palette_coeff_t* create_palette(struct image_t* image) {
@@ -22,16 +33,18 @@ struct palette_coeff_t* create_palette(struct image_t* image) {
 	unsigned int palette_cursor = 0;
 	unsigned int i;
 
-	COLOR_TYPE* max_tab_color = malloc(max_color*sizeof(COLOR_TYPE));
+	unsigned int* max_tab_color = malloc(max_color*sizeof(unsigned int));
 
-	memset(max_tab_color, 0, max_color*sizeof(COLOR_TYPE));
+	memset(max_tab_color, 0, max_color*sizeof(unsigned int));
 
 	for(i=0; i<image->width*image->height; i++) {
 
 		assert((unsigned int)image->pixels[i] < max_color);
 
-		if(max_tab_color[(unsigned int)image->pixels[i]] == 0)
+		if(max_tab_color[(unsigned int)image->pixels[i]] == 0) {
 			color_count++;
+
+		}
 
 		max_tab_color[(unsigned int)image->pixels[i]]++;
 	}

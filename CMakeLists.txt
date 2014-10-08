@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 
 include_directories(.)
 
-set(CMAKE_C_FLAGS "-pedantic -Werror -Wall -m32 -g")
+set(CMAKE_C_FLAGS "-pedantic -Werror -Wall -m32 -g -lm")
 
 file(GLOB_RECURSE source
     header.h
