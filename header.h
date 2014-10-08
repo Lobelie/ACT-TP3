@@ -7,6 +7,6 @@
 #define FATAL_ERROR(MSG) { fprintf(stderr, MSG "\n"); exit(EXIT_FAILURE); }
 #define VERBOSE(MSG) { fprintf(stdout, MSG "\n"); }
 
-#define COLOR_TYPE char
+#define COLOR_TYPE unsigned char
 
 #endif

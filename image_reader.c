@@ -146,6 +146,8 @@ struct image_t* read_pgm_format(const char* pathname) {
 	free(line);
 	line = NULL;
 
+	printf("Image dimension : %dx%d", image->width , image->height);
+
 	/* read bit per pixel */
 
 	if(getline(&line, &line_length, file) == -1) {

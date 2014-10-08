@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
 		image = read_image(argv[1]);
 	}
 
+	fflush(stdout);
 	palette = create_palette(image);
 
 
