@@ -2,6 +2,8 @@
 
 #define UNINITIAZLIZED_UINT 0xFFFFFFFF
 
+static unsigned int* back_trace_array = NULL;
+
 COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
 	int i;
     double average = 0;
@@ -16,41 +18,49 @@ COLOR_TYPE meilleurGris(struct palette_coeff_t* palette, unsigned int index_min,
 
 }
 
-float distanceMin(palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
-    float distance = FLT_MAX;
-    float distanceTmp = 0;
+unsigned int distanceMin(palette_coeff_t* palette, unsigned int index_min, unsigned int index_max) {
+	unsigned int distance = 0;
+	unsigned int i;
 
-	int i;
-    for(i=index_min+1; i<index_max; i++) {
-        COLOR_TYPE color = meilleurGris(palette, index_min, i);
-        distanceTmp += pow(palette->model->data[i] - color, 2.0) * palette->coeff[i];
+	COLOR_TYPE best_gray = meilleurGris(palette, index_min, index_max);
 
-        if ( distanceTmp < distance ) {
-            distance = distanceTmp;
-        }
-    }
-    return distance;
+	for(i=index_min; i<index_max; i++) {
+		distance += (palette->model->data[i]-best_gray)*(palette->model->data[i]-best_gray)*palette->coeff[i];
+	}
+
+	return distance;
 }
 
 unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int current_index, unsigned int k) {
 	static unsigned int* save_array = NULL;
 
+	/*printf("Curr = %d, k = %d ", current_index, k);*/
+
 	if(save_array == NULL) {
 		unsigned int i;
-		save_array = malloc(palette->model->size*k*sizeof(unsigned int));
-		for(i=0; i<palette->model->size*k; i++)
+		printf("INIT %d\n", palette->model->size*(k+1));
+		save_array = malloc(palette->model->size*(k+1)*sizeof(unsigned int));
+		back_trace_array = malloc(palette->model->size*(k+1)*sizeof(unsigned int));
+
+		for(i=0; i<palette->model->size*(k+1); i++)
 			save_array[i] = UNINITIAZLIZED_UINT;
 	}
 
-	if(save_array[current_index*palette->model->size+k] != UNINITIAZLIZED_UINT)
-		return save_array[current_index*palette->model->size+k];
+	if(save_array[k*palette->model->size+current_index] != UNINITIAZLIZED_UINT) {
+		/*printf("[save_value] => %d\n", save_array[k*palette->model->size+current_index]);*/
+		/*back_trace_array[k*palette->model->size+current_index] = current_index;*/
+		return save_array[k*palette->model->size+current_index];
+	}
 
 	if(k == 0) {
-		save_array[current_index*palette->model->size+k] = distanceMin(palette, current_index, palette->model->size);
-		return save_array[current_index*palette->model->size+k];
+		save_array[k*palette->model->size+current_index] = distanceMin(palette, current_index, palette->model->size);
+		/*back_trace_array[k*palette->model->size+current_index] = UNINITIAZLIZED_UINT;*/
+		/*printf("[k=0] => %d\n", save_array[k*palette->model->size+current_index]);*/
+		return save_array[k*palette->model->size+current_index];
 	}
 	else {
 		unsigned int min = INT_MAX;
+		unsigned int min_index = INT_MAX;
 		unsigned int i;
 
 		for(i = current_index; i < palette->model->size-k; i++) {
@@ -58,10 +68,14 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 
 			if(current < min) {
 				min = current;
+				min_index = i;
 			}
 		}
 
-		save_array[current_index*palette->model->size+k] = min;
+
+		save_array[k*palette->model->size+current_index] = min;
+		back_trace_array[k*palette->model->size+current_index] = min_index;
+		printf("Curr = %d, k = %d, [min] => %d, (min_index=%d)\n", current_index, k, min, min_index);
 
 		return min;
 	}
@@ -113,5 +127,30 @@ struct palette_coeff_t* create_palette(struct image_t* image) {
 	}
 
 	return palette_coeff_return;
+
+}
+
+COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size) {
+	unsigned int i;
+	COLOR_TYPE* return_array;
+
+	assert(back_trace_array != NULL);
+
+	*size = k;
+	return_array = malloc(*size*sizeof(COLOR_TYPE));
+
+	i = 0;
+
+	while(0 < k) {
+		return_array[i] = current_index;
+		current_index = back_trace_array[k*palette_size+current_index];
+		return_array[i] = current_index;
+		i++;
+		k--;
+
+	}
+
+
+	return return_array;
 
 }

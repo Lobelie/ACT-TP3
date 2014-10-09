@@ -8,8 +8,12 @@ void print_command_line() {
 int main(int argc, char** argv) {
 
 	struct image_t* image;
+	struct image_t* new_image;
 	struct palette_coeff_t* palette;
 	unsigned int k;
+	COLOR_TYPE* new_coeff;
+	unsigned int new_coeff_size;
+	unsigned int i;
 
 	if(argc < 2) {
 		print_command_line();
@@ -31,6 +35,24 @@ int main(int argc, char** argv) {
 
 	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
+	new_coeff = backtrace_palette_index(palette->model->size, 0, k, &new_coeff_size);
+
+	printf("Backtrace : ");
+	for(i = 0; i<new_coeff_size; i++) {
+		printf("%d ", new_coeff[i]);
+	}
+	printf("\n");
+
+	new_image = construct_image(new_coeff, new_coeff_size, image, palette->model);
+
+	save_image("result.pgm", new_image);
+
+
+	free(new_image->pixels);
+	free(new_image);
+
+
+	free(new_coeff);
 
 	free(image->pixels);
 	free(image);
