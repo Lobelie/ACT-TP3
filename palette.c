@@ -81,7 +81,7 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 	}
 }
 
-struct palette_coeff_t* create_palette(struct image_t* image) {
+struct palette_coeff_t* create_palette(struct image_t* image)  {
 	struct palette_coeff_t* palette_coeff_return = NULL;
 
 	unsigned int max_color = pow(2, sizeof(COLOR_TYPE)*8)*sizeof(COLOR_TYPE);
@@ -130,7 +130,7 @@ struct palette_coeff_t* create_palette(struct image_t* image) {
 
 }
 
-COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size) {
+COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size, struct palette_t* palette) {
 	unsigned int i;
 	COLOR_TYPE* return_array;
 
@@ -142,9 +142,8 @@ COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int curr
 	i = 0;
 
 	while(0 < k) {
-		return_array[i] = current_index;
 		current_index = back_trace_array[k*palette_size+current_index];
-		return_array[i] = current_index;
+		return_array[i] = palette->data[current_index];
 		i++;
 		k--;
 

@@ -1,7 +1,7 @@
 #include "image_reader.h"
 #include "palette.h"
 void print_command_line() {
-	printf("./pgm <image-pathname> <gray-level>\n");
+	printf("./pgm <image-pathname> <gray-level> <output-pathname>\n");
 }
 
 
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 	unsigned int new_coeff_size;
 	unsigned int i;
 
-	if(argc < 2) {
+	if(argc != 4) {
 		print_command_line();
         return EXIT_FAILURE;
 	}
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
 	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
-	new_coeff = backtrace_palette_index(palette->model->size, 0, k, &new_coeff_size);
+	new_coeff = backtrace_palette_index(palette->model->size, 0, k, &new_coeff_size, palette->model);
 
 	printf("Backtrace : ");
 	for(i = 0; i<new_coeff_size; i++) {
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
 	new_image = construct_image(new_coeff, new_coeff_size, image, palette->model);
 
-	save_image("result.pgm", new_image);
+	save_image(argv[3], new_image);
 
 
 	free(new_image->pixels);

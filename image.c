@@ -12,6 +12,9 @@ struct image_t* construct_image(COLOR_TYPE* palette_array, unsigned int palette_
 	unsigned int max_palette;
 	unsigned int min_palette;
 
+	unsigned int max_color = pow(2, sizeof(COLOR_TYPE)*8)*sizeof(COLOR_TYPE);
+	unsigned int* old_color_assoc = malloc(max_color*sizeof(unsigned int));
+
 	new_image = malloc(sizeof(struct image_t));
 
 	new_image->height = old_image->height;
@@ -30,6 +33,7 @@ struct image_t* construct_image(COLOR_TYPE* palette_array, unsigned int palette_
 	max_palette = 0;
 
 	for(i=0; i<old_palette->size; i++) {
+
 		if(old_palette->data[i] > max_palette)
 			max_palette = old_palette->data[i];
 
@@ -37,30 +41,36 @@ struct image_t* construct_image(COLOR_TYPE* palette_array, unsigned int palette_
 			min_palette = old_palette->data[i];
 	}
 
-	printf("min = %d, max = %d\n", min_palette, max_palette);
-
 	for(i=0; i<old_palette->size; i++) {
 		unsigned int min, max;
-		printf("%d => %d\n", i, palette_array[palette_cursor-1]);
-		palette_assoc[i] = palette_array[palette_cursor-1];
+
+		palette_assoc[i] = palette_cursor > palette_size ? palette_array[palette_size-1] : palette_array[palette_cursor-1];
 
 		min = palette_cursor == 0 ? min_palette : palette_array[palette_cursor-1];
 		max = palette_cursor == palette_size ? max_palette : palette_array[palette_cursor];
 
-		printf("%d | %d ", (max+min)/2, i);
 
-		if((max+min)/2 < i) {
+		if((max+min)/2 < old_palette->data[i]) {
 			palette_cursor++;
 		}
 	}
 
+	for(i=0; i<old_palette->size; i++) {
+		old_color_assoc[old_palette->data[i]] = i;
+	}
+
+
+	for(i=0; i<max_color; i++) {
+
+	}
+
 
 	for(i=0; i<new_image->height*new_image->width; i++) {
-
-		new_image->pixels[i] = 255-palette_assoc[old_image->pixels[i]];
+		new_image->pixels[i] = palette_assoc[old_color_assoc[old_image->pixels[i]]];
 	}
 
 	free(palette_assoc);
+	free(old_color_assoc);
 
 	return new_image;
 
