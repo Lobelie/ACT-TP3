@@ -27,11 +27,7 @@ int main(int argc, char** argv) {
 	fflush(stdout);
 	palette = create_palette(image);
 
-	printf("palette : %d\n", palette->model->size);
-
-	printf("meilleur gris : %d\n", meilleurGris(palette, 0, palette->model->size));
-
-	printf("distance min : %d\n", distanceMin(palette, 0, palette->model->size));
+	printf("distance min : %d\n", distanceMin(palette, 0, 2));
 
 	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
@@ -53,6 +49,9 @@ int main(int argc, char** argv) {
 
 
 	free(new_coeff);
+
+	for(i=0; i<palette->model->size; i++)
+		printf("%d, %d\n", palette->model->data[i], palette->coeff[i]);
 
 	free(image->pixels);
 	free(image);

@@ -4,7 +4,7 @@
 #define PGM_MODE_BINARY 1
 
 
-static char* _next_token(char* str) {
+static char* _next_token(char* str, unsigned int* end_cursor) {
 	unsigned int cursor = 0;
 	unsigned int begin;
 	char* str_return;
@@ -26,7 +26,9 @@ static char* _next_token(char* str) {
 	str_return = malloc(cursor-begin+1);
 
 	memcpy(str_return, str+begin, cursor-begin);
-	str_return[cursor-begin+1] = '\0';
+	str_return[cursor-begin] = '\0';
+
+	*end_cursor = cursor;
 
 	return str_return;
 
@@ -69,9 +71,10 @@ struct image_t* read_pgm_format(const char* pathname) {
 	int cont;
 	char* str = NULL;
 	struct image_t* image;
-	unsigned int previous_size;
 	unsigned int bit_per_pixel;
+	unsigned int end_cursor;
 	int pgm_mode;
+
 
 
 	if((file = fopen(pathname, "r")) == NULL) {
@@ -123,18 +126,19 @@ struct image_t* read_pgm_format(const char* pathname) {
 
 	/* read dimension */
 
-	if((str = _next_token(line)) == NULL) {
+	end_cursor = 0;
+
+	if((str = _next_token(line, &end_cursor)) == NULL) {
 		free(image);
 		FATAL_ERROR("Require width");
 	}
 
-	previous_size = strlen(str);
 
 	image->width = atoi(str);
 
 	free(str);
 
-	if((str = _next_token(line+previous_size)) == NULL) {
+	if((str = _next_token(line+end_cursor, &end_cursor)) == NULL) {
 		free(image);
 		FATAL_ERROR("Require height");
 	}
@@ -171,6 +175,29 @@ struct image_t* read_pgm_format(const char* pathname) {
 	if(pgm_mode == PGM_MODE_BINARY) {
 		fread(image->pixels, image->height*image->width, sizeof(COLOR_TYPE), file);
 	}
+	else if(pgm_mode == PGM_MODE_AASCII) {
+		unsigned int i, j;
+		for(i=0; i<image->height; i++) {
+			if(getline(&line, &line_length, file) == -1) {;
+				FATAL_ERROR("Error read image");
+			}
+			end_cursor = 0;
+			for(j=0;j<image->width; j++) {
+				unsigned int end_cursor_interm;
+				if((str = _next_token(line+end_cursor, &end_cursor_interm)) == NULL) {
+					free(image);
+					FATAL_ERROR("Require value");
+				}
+				end_cursor += end_cursor_interm;
+
+				image->pixels[i*image->width+j] = atoi(str);
+				free(str);
+			}
+			free(line);
+			line = NULL;
+		}
+	}
+
 	else {
 		FATAL_ERROR("Unimplemented PGM_MODE_ASCII");
 	}
