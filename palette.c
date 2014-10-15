@@ -34,13 +34,9 @@ unsigned int distanceMin(palette_coeff_t* palette, unsigned int index_min, unsig
 unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int current_index, unsigned int k) {
 	static unsigned int* save_array = NULL;
 
-	printf("Call func current_index=%d, k=%d\n", current_index, k);
-
-	/*printf("Curr = %d, k = %d ", current_index, k);*/
 
 	if(save_array == NULL) {
 		unsigned int i;
-		printf("INIT %d\n", palette->model->size*(k+1));
 		save_array = malloc(palette->model->size*(k+1)*sizeof(unsigned int));
 		back_trace_array = malloc(palette->model->size*(k+1)*sizeof(unsigned int));
 
@@ -49,16 +45,11 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 	}
 
 	if(save_array[k*palette->model->size+current_index] != UNINITIAZLIZED_UINT) {
-		/*printf("[save_value] => %d\n", save_array[k*palette->model->size+current_index]);*/
-		/*back_trace_array[k*palette->model->size+current_index] = current_index;*/
 		return save_array[k*palette->model->size+current_index];
 	}
 
-	if(k == 0) {
+	if(k == 1) {
 		save_array[k*palette->model->size+current_index] = distanceMin(palette, current_index, palette->model->size);
-		printf("distanceMin (final) = %d (%d [%d]-end)\n", distanceMin(palette, current_index, palette->model->size), palette->model->data[current_index], current_index);
-		/*back_trace_array[k*palette->model->size+current_index] = UNINITIAZLIZED_UINT;*/
-		/*printf("[k=0] => %d\n", save_array[k*palette->model->size+current_index]);*/
 		return save_array[k*palette->model->size+current_index];
 	}
 	else {
@@ -68,7 +59,6 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 
 		for(i = current_index+1; i < palette->model->size; i++) {
 			unsigned int current = distanceMin(palette, current_index, i)+reduce_palette(palette, i, k-1);
-			printf("min %d - %d = %d (meilleur=%d)\n", current_index, i, distanceMin(palette, current_index, i), meilleurGris(palette, current_index, i));
 
 			if(current < min) {
 				min = current;
@@ -79,11 +69,6 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 
 		save_array[k*palette->model->size+current_index] = min;
 		back_trace_array[k*palette->model->size+current_index] = min_index;
-		printf("Curr = %d, k = %d, [min %d - %d] => %d, (min_index=%d)\n", current_index, k, palette->model->data[current_index], palette->model->data[palette->model->size-1], min, min_index);
-		if(min_index < palette->model->size)
-			printf("distanceMin = %d (%d-%d)\n", distanceMin(palette, current_index, min_index), palette->model->data[current_index], palette->model->data[min_index-1]);
-		else
-			printf("distanceMin = out_of_range");
 		return min;
 	}
 }
@@ -139,8 +124,8 @@ struct palette_coeff_t* create_palette(struct image_t* image)  {
 
 }
 
-COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size, struct palette_t* palette) {
-	unsigned int i;
+COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size, struct palette_coeff_t* palette) {
+	unsigned int i, last_max = 0;
 	COLOR_TYPE* return_array;
 
 	assert(back_trace_array != NULL);
@@ -150,14 +135,16 @@ COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int curr
 
 	i = 0;
 
-	while(0 < k) {
+	while(1 < k) {
 		current_index = back_trace_array[k*palette_size+current_index];
-		return_array[i] = palette->data[current_index];
+		return_array[i] = meilleurGris(palette, last_max, current_index);
+		last_max = current_index;
 		i++;
 		k--;
 
 	}
 
+	return_array[i] = meilleurGris(palette, last_max, palette->model->size);
 
 	return return_array;
 

@@ -38,6 +38,6 @@ unsigned int reduce_palette(struct palette_coeff_t* palette, unsigned int curren
 /*
  *	Get backtrace of new palette. return array is owned by caller
  */
-COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size, struct palette_t* palette);
+COLOR_TYPE* backtrace_palette_index(unsigned int palette_size, unsigned int current_index, unsigned int k, unsigned int* size, struct palette_coeff_t* palette);
 
 #endif

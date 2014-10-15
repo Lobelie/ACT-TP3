@@ -27,13 +27,11 @@ int main(int argc, char** argv) {
 	fflush(stdout);
 	palette = create_palette(image);
 
-	printf("distance min : %d\n", distanceMin(palette, 0, 2));
-
 	printf("reduce palette : %d\n", reduce_palette(palette, 0, k));
 
-	new_coeff = backtrace_palette_index(palette->model->size, 0, k, &new_coeff_size, palette->model);
+	new_coeff = backtrace_palette_index(palette->model->size, 0, k, &new_coeff_size, palette);
 
-	printf("Backtrace : ");
+	printf("New color : ");
 	for(i = 0; i<new_coeff_size; i++) {
 		printf("%d ", new_coeff[i]);
 	}
@@ -49,9 +47,6 @@ int main(int argc, char** argv) {
 
 
 	free(new_coeff);
-
-	for(i=0; i<palette->model->size; i++)
-		printf("%d, %d\n", palette->model->data[i], palette->coeff[i]);
 
 	free(image->pixels);
 	free(image);
